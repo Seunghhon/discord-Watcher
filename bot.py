@@ -7,11 +7,18 @@ from pathlib import Path
 import asyncio
 from discord.ext import tasks
 import random
+import os
 
 bot = discord.Bot(itents=discord.Intents.all())
 # with open("./config.json") as f: config = load(f)
 TOKEN = loads(Path("config.json").read_text())["TOKEN"]
+URL = loads(Path("config.json").read_text())["URL"]
+OWNER = loads(Path("config.json").read_text())["whitelist"]
+INVITE = loads(Path("config.json").read_text())["INVITE"]
+developer = loads(Path("config.json").read_text())["developer"]
+
 bot.used = []
+bot.owner = OWNER
 
 @bot.event
 async def on_ready():
@@ -21,8 +28,9 @@ async def on_ready():
 @tasks.loop(seconds=5)
 async def presence():
     stetements=[
+        "by" + " " +developer,
         bot.status,
-        bot.activity,
+        bot.user.name,
     ]
     if bot.used:
         await bot.change_presence(activity=discord.Game(name=bot.used.pop(0)))
@@ -69,6 +77,27 @@ async def ping(ctx):
     embed.set_footer(text=f"Used by {ctx.author.name}", icon_url=f"{ctx.author.avatar}")
     await ctx.respond(embed = embed)
 
+@bot.slash_command(description="Restart bot")
+async def restart(ctx):
+    if ctx.author.id == bot.owner:
+        await ctx.respond("Restarting...", delete_after=1)
+        os.system("python bot.py")
+        await bot.close()
+    else:
+        embed = discord.Embed()
+        embed.set_author(
+            name="You don't have permission!",
+            icon_url=URL
+        )
+        embed.color = 0xdf0000
+        await ctx.respond(embed=embed)
+
+@bot.slash_command(description="invite this bot")
+async def invite(ctx):
+    embed = discord.Embed(title = None, description=f"[**Invite me!**]({INVITE})")
+    embed.color = 0xEDE9B6
+    embed.set_footer(text = f"{bot.user.name} by {developer}", icon_url=bot.user.avatar)
+    await ctx.respond(embed=embed)
 
 
 bot.run(TOKEN)
