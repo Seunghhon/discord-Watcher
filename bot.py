@@ -13,6 +13,7 @@ bot = discord.Bot(itents=discord.Intents.all())
 # with open("./config.json") as f: config = load(f)
 TOKEN = loads(Path("config.json").read_text())["TOKEN"]
 URL = loads(Path("config.json").read_text())["URL"]
+URL2 = loads(Path("config.json").read_text())["URL2"]
 OWNER = loads(Path("config.json").read_text())["whitelist"]
 INVITE = loads(Path("config.json").read_text())["INVITE"]
 developer = loads(Path("config.json").read_text())["developer"]
@@ -30,12 +31,12 @@ async def presence():
     stetements=[
         "by" + " " +developer,
         bot.status,
-        bot.user.name,
+        " " + str(bot.guilds[0].member_count) + " " + "users 👀",
     ]
     if bot.used:
         await bot.change_presence(activity=discord.Game(name=bot.used.pop(0)))
     else:
-        await bot.change_presence(activity=discord.Game(name=f"{random.choice(stetements)}"))
+        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{random.choice(stetements)}"))
 
 @bot.user_command()
 async def hello(ctx,user):
@@ -80,7 +81,13 @@ async def ping(ctx):
 @bot.slash_command(description="Restart bot")
 async def restart(ctx):
     if ctx.author.id == bot.owner:
-        await ctx.respond("Restarting...", delete_after=1)
+        embed = discord.Embed()
+        embed.set_author(
+            name = "Restarting...",
+            icon_url = URL2
+        )
+        embed.color = 0x42B582
+        await ctx.respond(embed=embed, delete_after=1)
         os.system("python bot.py")
         await bot.close()
     else:
@@ -89,12 +96,12 @@ async def restart(ctx):
             name="You don't have permission!",
             icon_url=URL
         )
-        embed.color = 0xdf0000
+        embed.color = 0xDC143C
         await ctx.respond(embed=embed)
 
 @bot.slash_command(description="invite this bot")
 async def invite(ctx):
-    embed = discord.Embed(title = None, description=f"[**Invite me!**]({INVITE})")
+    embed = discord.Embed(title="Invite me!", url=INVITE )
     embed.color = 0xEDE9B6
     embed.set_footer(text = f"{bot.user.name} by {developer}", icon_url=bot.user.avatar)
     await ctx.respond(embed=embed)

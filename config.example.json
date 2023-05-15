@@ -1,8 +1,8 @@
 {
     "TOKEN": "put your token here",
     "URL": "put your cdn url here",
+    "URL2": "put your cdn url2 here",
     "whitelist": "put your discord id here",
     "INVITE": "put your invite link here",
     "devloper": "put your developer name here"
-
 }
