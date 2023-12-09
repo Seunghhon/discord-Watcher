@@ -30,4 +30,3 @@ def favicon(status):
             return False
     except:
         return None
-    

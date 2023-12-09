@@ -24,6 +24,7 @@ bot.owner = OWNER
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name} ({bot.user.id})")
+    print(f"Discord.py version: {discord.__version__}")
     presence.start()
 
 @tasks.loop(seconds=5)
@@ -59,10 +60,14 @@ async def mcstatus(ctx, ip):
     )
     embed.add_field(name="Version", value=f"```yml\n{status.version.name}```", inline=True)
     embed.add_field(name="Latency", value=f"```yml\n{zapcollor(status.latency)} | {status.latency} ms```", inline=True)
-    embed.add_field(name="Players", value=f"```yml\n{status.players.online}/{status.players.max}```", inline=True)
-    embed.add_field(name="Port", value=f"```yml\n{debug}```", inline=True)
-    embed.add_field(name="Favicon", value=f"```yml\n{favicon(status.favicon)}```", inline=True)
-    embed.add_field(name="Protocol", value=f"```yml\n{status.version.protocol}```", inline=True)
+    embed.add_field(name="Online", value=f"```yml\n{status.players.online}/{status.players.max}```", inline=True)
+    #embed.add_field(name="Port", value=f"```yml\n{debug}```", inline=True)
+    #embed.add_field(name="Favicon", value=f"```yml\n{favicon(status.favicon)}```", inline=True)
+    #embed.add_field(name="Protocol", value=f"```yml\n{status.version.protocol}```", inline=True)
+    player_list = [player.name for player in status.players.sample] if hasattr(status.players, 'sample') else []
+    if player_list == []:
+        player_list = ["None"]
+    embed.add_field(name="Players", value=f"```yml\n{', '.join(player_list)}```", inline=False)
     embed.add_field(name="MOTD", value=f"```yml\n{status.description}```", inline=False)
     time = datetime.datetime.now()
     embed.set_footer(text=f"{ctx.author.name}", icon_url=f"{ctx.author.avatar}")
@@ -71,9 +76,8 @@ async def mcstatus(ctx, ip):
 
 @bot.slash_command(description="Get bot latency")
 async def ping(ctx):
-    embed = discord.Embed(title = "Pong!")
-    embed.add_field(name = "Latency", value = f"```yml\n {zapcollor(bot.latency*1000)} | {bot.latency*1000:.0f} ms```", inline = False)
-    # embed.value = f"```yml\n {zapcollor(bot.latency*1000)} | {bot.latency*1000:.0f} ms```"
+    embed = discord.Embed(title="Latency")
+    embed.add_field(name = "", value = f"```yml\n {zapcollor(bot.latency*1000)} | {bot.latency*1000:.0f} ms```", inline = False)
     embed.color = 0xEDE9B6
     embed.set_footer(text=f"Used by {ctx.author.name}", icon_url=f"{ctx.author.avatar}")
     await ctx.respond(embed = embed)
@@ -101,7 +105,7 @@ async def restart(ctx):
 
 @bot.slash_command(description="invite this bot")
 async def invite(ctx):
-    embed = discord.Embed(title="Invite me!", url=INVITE )
+    embed = discord.Embed(title="**Invite me!**", url=INVITE )
     embed.color = 0xEDE9B6
     embed.set_footer(text = f"{bot.user.name} by {developer}", icon_url=bot.user.avatar)
     await ctx.respond(embed=embed)
